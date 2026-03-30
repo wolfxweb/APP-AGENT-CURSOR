@@ -1,6 +1,6 @@
-# appGetUp — APP
+# APP-AGENT-CURSOR — APP
 
-Repositório do **appGetUp** — raiz do projeto na pasta **`APP`** (ex.: `~/Documents/APP`). Abra essa pasta no Cursor/IDE. (análise de margens, diagnóstico financeiro, simulação de cenários), com copy e regras de produto em **português brasileiro**.
+Repositório do **APP-AGENT-CURSOR** — raiz do projeto na pasta **`APP`** (ex.: `~/Documents/APP`). Abra essa pasta no Cursor/IDE. (análise de margens, diagnóstico financeiro, simulação de cenários), com copy e regras de produto em **português brasileiro**.
 
 A especificação funcional vive em [**`Requisitos.MD`**](Requisitos.MD). A stack de **implementação** acordada para o código é a documentada nas Cursor Rules (não substituir o doc de produto sem alinhar).
 
