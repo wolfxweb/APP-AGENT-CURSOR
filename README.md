@@ -76,10 +76,50 @@ Referência: `docs/PROTOCOLO-QA-GATE.md`.
 
 ### 6) Convenções rápidas
 
-- Nome da pasta/repo: **APP**
-- Nome do produto: **appGetUp**
+- Repositório (GitHub): **APP-AGENT-CURSOR** — pasta de trabalho local típica: **`APP`**
+- Nome do produto entregue ao usuário: **appGetUp** (exemplos neste repo seguem esse produto; outro projeto pode ter outro nome no `Requisitos.MD`)
 - UI/copy em português brasileiro
 - Stack oficial: React + TypeScript, FastAPI async, PostgreSQL/Supabase, Alembic, Docker
+
+---
+
+## Criar outro projeto usando os agentes
+
+Este repositório funciona como **template operacional**: regras (`.cursor/rules`), subagentes (`.cursor/agents/`), gate (`scripts/verify.sh`) e protocolo de QA. Para um **novo produto ou módulo**, não é obrigatório “recomeçar do zero” sem agentes — repita o fluxo abaixo.
+
+### 1) Partir de uma cópia limpa do repositório
+
+- Faça **fork** ou **clone** deste repo para um novo repositório (ou nova pasta local).
+- Abra a **raiz** da cópia no Cursor (onde estão `.cursor/`, `scripts/`, `README.md`).
+
+### 2) Documentar o novo escopo em `Requisitos.MD`
+
+- Substitua ou acrescente seções em [`Requisitos.MD`](Requisitos.MD) com objetivo, fluxos, modelo de dados desejado, APIs e critérios de aceite do **novo** projeto.
+- Tudo que for decisão de produto deve estar **escrito** lá; o código segue o documento (ou divergências explícitas).
+
+### 3) Orquestração obrigatória (ordem)
+
+1. **`/product-analyst`** — se a ideia ainda for vaga: telas, personas, critérios de aceite, backlog **`T1…Tn`** numerado.
+2. **`/arquiteto`** — plano técnico: pastas, contratos API ↔ front, ordem das tarefas, riscos.
+3. **Implementação por tarefa**, uma **`Tn` por vez**, chamando o especialista certo:
+   - **`/docker`** — Compose, Dockerfiles, variáveis locais (quando precisar de ambiente containerizado).
+   - **`/banco-de-dados`** — modelo, Alembic, seeds/RLS quando aplicável.
+   - **`/backend`** — FastAPI, validações, regras de negócio na API.
+   - **`/react-frontend`** — dados, formulários, rotas de UI.
+   - **`/react-ui`** — polish visual (quando fizer diferença para o aceite).
+4. **Fechamento:** **`/qa`** (testes automatizados), **`/verifier`** (evidência de pronto); **`/seguranca`** se houver auth, dados sensíveis ou exposição a Supabase/RLS.
+
+Entre cada tarefa concluída, rode **`./scripts/verify.sh`** (exit **0**) antes de começar a próxima — ver [`docs/PROTOCOLO-QA-GATE.md`](docs/PROTOCOLO-QA-GATE.md).
+
+### 4) Ajustes mecânicos ao mudar de projeto
+
+- **`scripts/verify.sh`** — se pastas de app mudarem (`backend`, `frontend`, etc.), mantenha os caminhos alinhados para pytest e Playwright serem detectados.
+- **`.github/workflows/verify.yml`** — alinhar com a mesma ideia do gate local (Node, Python, Playwright na CI, se necessário).
+- **Subagentes** — se editar arquivos em `.cursor/agents/`, rode `./scripts/sync-subagents.sh` para espelhar em `.claude` e `.codex` (quando usar esses ambientes).
+
+### 5) Exemplo mínimo já neste repo
+
+Este repositório inclui um **MVP de tarefas** (FastAPI + React + Postgres + Playwright + Docker Compose) como referência de ponta a ponta. Use-o como “segundo projeto” **mental**: mesmo fluxo de agentes e mesmo gate; o que muda é o conteúdo do `Requisitos.MD` e o backlog `Tn` do `/product-analyst`.
 
 ---
 
@@ -140,9 +180,53 @@ Hooks do Cursor: [`.cursor/hooks.json`](.cursor/hooks.json).
 
 ---
 
-## Como rodar (quando o código existir)
+## Como rodar local com Docker (MVP)
 
-Instruções finais (`docker compose up`, variáveis `.env`, URLs) devem constar do próprio monorepo assim que **Dockerfile** / **Compose** e apps forem adicionados. Até lá, use **`Requisitos.MD`** (seções de deploy e variáveis) como referência e alinhe com o subagente **`/docker`**.
+### 1) Preparar variaveis locais
+
+```bash
+cp .env.example .env
+```
+
+Os valores do `.env.example` sao seguros para uso local e sem segredos reais.
+
+### 2) Subir stack completa (Postgres + API + Frontend)
+
+```bash
+docker compose up --build
+```
+
+URLs de acesso:
+
+- Frontend (Vite): `http://localhost:5173`
+- Backend (FastAPI): `http://localhost:8000`
+- Health API: `http://localhost:8000/api/v1/health`
+
+### 3) Aplicar migracoes Alembic
+
+Com a stack no ar:
+
+```bash
+docker compose exec backend alembic upgrade head
+```
+
+Alternativa (one-shot):
+
+```bash
+docker compose run --rm backend alembic upgrade head
+```
+
+### 4) Parar ambiente
+
+```bash
+docker compose down
+```
+
+Para remover tambem o volume do banco:
+
+```bash
+docker compose down -v
+```
 
 ---
 
