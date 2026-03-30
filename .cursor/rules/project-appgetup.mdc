@@ -1,0 +1,25 @@
+---
+description: Stack fixa do projeto appGetUp (gestão empresarial, PT-BR)
+alwaysApply: true
+---
+
+# Projeto appGetUp — stack oficial
+
+Esta stack **não deve ser trocada** sem decisão explícita de produto/arquitetura.
+
+- **Repositório / workspace (pasta Git):** **`APP`** — use esse nome em caminhos, CI e documentação de repo.
+- **Nome do produto (usuário final, marketing, Requisitos):** **appGetUp** — gestão empresarial (margens, diagnóstico, simulação).
+- **Idioma de UI e copy:** português brasileiro.
+- **Frontend:** **React** com **TypeScript**; tooling do monorepo (Vite ou Next — seguir o que já existir no repo); UI moderna (ex.: Tailwind + componentes headless ou biblioteca já adotada).
+- **Backend:** **Python**, **FastAPI** (async), **SQLAlchemy 2** async.
+- **Banco:** **PostgreSQL** (asyncpg / driver async compatível com o projeto).
+- **Plataforma:** **Supabase** — Postgres gerenciado + (quando usado) Auth, Storage, Realtime, RLS; variáveis `SUPABASE_URL`, chaves **anon** vs **service role** documentadas sem commitar segredos.
+- **API:** FastAPI como BFF/serviço principal consumido pelo React; contratos estáveis (OpenAPI quando aplicável).
+- **Migrações:** **Alembic** para schema da aplicação, alinhado ao Postgres; alinhar com políticas Supabase (RLS) quando dados forem acessados pelo cliente.
+- **Execução:** **Docker** é o alvo padrão — API, front (quando containerizado) e Postgres local via **Compose** conforme definido pelo especialista `/docker`; CI/deploy com `/devops`.
+
+**Regras de produto e fluxos:** `Requisitos.MD` descreve comportamento e telas — **implemente no React + API**, não em Jinja legado.
+
+**Identidade visual:** cor primária de marca **`rgb(1, 57, 44)`** salvo evolução documentada.
+
+**Integrações:** ViaCEP, SMTP (ex.: recuperação de senha) conforme `Requisitos.MD`, expostas via FastAPI quando necessário.

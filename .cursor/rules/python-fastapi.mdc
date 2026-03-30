@@ -1,0 +1,16 @@
+---
+description: Padrões Python / FastAPI / SQLAlchemy async + PostgreSQL
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Backend Python
+
+- **Async** em I/O: `AsyncSession`, handlers `async def` nas rotas que acessam DB.
+- **PostgreSQL:** conexão async (ex.: `asyncpg` via SQLAlchemy); `DATABASE_URL` apontando para Postgres local ou **Supabase**.
+- **Validação:** Pydantic em `schemas/`; erros HTTP consistentes; mensagens úteis em PT-BR na API quando forem exibidas no front.
+- **Moeda / números:** manter utilitário tipo **`safe_float`** (ou equivalente) para entradas derivadas de formulário/API textual.
+- **Migrações:** mudança de modelo → **Alembic**; alinhar com políticas **Supabase** se o cliente Supabase ler as mesmas tabelas.
+- **Integrações externas:** preferir **`httpx`** async com timeouts; envolver cliente em módulo de serviço. Quando o workspace tiver **MCP de terceiros** útil à tarefa, o subagente **backend** pode usar essas ferramentas (herdadas do agente) em vez de reinventar HTTP — sempre com cuidado a segredos e logs.
+
+Antes de concluir: imports ok, app sobe, endpoints principais da feature respondem.

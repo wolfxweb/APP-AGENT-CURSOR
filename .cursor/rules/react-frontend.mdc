@@ -1,0 +1,15 @@
+---
+description: React + TypeScript — componentes, estado, consumo da API FastAPI
+globs: "**/*.{tsx,jsx}"
+alwaysApply: false
+---
+
+# Frontend React
+
+- **TypeScript** estrito onde o projeto já use; evitar `any` salvo justificativa local.
+- **Dados:** consumir a API **FastAPI** (fetch/axios/React Query — seguir padrão do repo); tratar **loading, erro e vazio** em telas com dados.
+- **Forms:** validação alinhada aos contratos Pydantic; mensagens ao usuário em **PT-BR**.
+- **A11y:** semântica, labels, foco em modais/dialogs; não depender só de cor para estado.
+- **Supabase client:** usar **apenas** onde o desenho do app expõe dados direto (respeitar RLS); não chave **service_role** no front.
+
+Identidade: acento de marca **`rgb(1, 57, 44)`**; layout responsivo; evitar “AI slop” (gradientes genéricos em todo card).

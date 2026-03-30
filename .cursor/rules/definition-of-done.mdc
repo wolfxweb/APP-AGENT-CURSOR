@@ -1,0 +1,16 @@
+---
+description: Checklist antes de marcar tarefa como concluída
+alwaysApply: true
+---
+
+# Definição de pronto (agente)
+
+Antes de afirmar que terminou:
+
+1. **Alinhamento:** mudança coerente com `Requisitos.MD` (ou documente divergência intencional).
+2. **Verificação:** preferir **`./scripts/verify.sh`** como gate único; se falhar, não declare o tópico concluído. Alternativa: `pytest`, build/testes do **React**, **`playwright test`** conforme projeto.
+3. **Migrações:** se tocou em modelos, Alembic atualizado.
+4. **Segurança:** sem segredos novos em código; auth/cookies respeitados nas rotas novas.
+5. **Resumo:** diff lógico + como testar manualmente a tela ou endpoint principal.
+
+Se algo ficou fora de escopo, liste como **follow-up** em vez de omitir.

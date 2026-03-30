@@ -1,0 +1,26 @@
+# Gate único: falha aqui = PR vermelho até corrigir — ver docs/PROTOCOLO-QA-GATE.md
+name: verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: pytest disponível para o gate
+        run: pip install pytest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Gate (scripts/verify.sh)
+        run: bash scripts/verify.sh

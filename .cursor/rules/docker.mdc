@@ -1,0 +1,15 @@
+---
+description: Docker e Compose — imagens e orquestração local para a stack do projeto
+globs: "**/Dockerfile*,**/docker-compose*.yml,**/.dockerignore"
+alwaysApply: false
+---
+
+# Docker
+
+- **Fonte de detalhes operacionais:** subagente **`docker`** (`/docker`).
+- Preferir **multi-stage**, **non-root**, **`.dockerignore`** completo; **healthchecks** no Compose alinhados ao app.
+- **Secrets:** via env no runtime, nunca `COPY .env` em imagem de produção.
+- **Postgres:** volume nomeado em dev; `DATABASE_URL` apontando ao serviço `db` no Compose ou Supabase.
+- **Front + API:** variáveis de build (`VITE_*` / `NEXT_PUBLIC_*`) apenas o necessário; proxy ou URL pública coerente entre serviços.
+
+Mudança aqui deve ser validável com `docker compose build` e `docker compose up` (ou documentar profile).
