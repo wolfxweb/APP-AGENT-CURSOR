@@ -1,58 +1,84 @@
 services:
-  db:
+  postgres:
     image: postgres:16-alpine
-    container_name: task-appgetup-db
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-appgetup}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-appgetup}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - appgetup_db_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-appgetup}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-appgetup}",
+        ]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: appgetup-backend
-    working_dir: /app
     environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://postgres:postgres@postgres:5432/appgetup}
       APP_ENV: ${APP_ENV:-development}
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-appgetup}
+      SECRET_KEY: ${SECRET_KEY:-dev-change-me-use-openssl-rand-hex-32-in-real-env}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      APP_URL: ${APP_URL:-http://localhost:5173}
+      # Fase de testes: qualquer chave não vazia; em produção defina false explicitamente.
+      SKIP_ACTIVATION_LICENSE_CHECK: ${SKIP_ACTIVATION_LICENSE_CHECK:-true}
+      PASSWORD_RESET_TOKEN_MAX_AGE: ${PASSWORD_RESET_TOKEN_MAX_AGE:-86400}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@appgetup.local}
+      BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-false}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BOOTSTRAP_ADMIN_NAME: ${BOOTSTRAP_ADMIN_NAME:-Administrador}
+      BOOTSTRAP_ADMIN_ACTIVITY_TYPE: ${BOOTSTRAP_ADMIN_ACTIVITY_TYPE:-Prestação de serviços}
+      BOOTSTRAP_ADMIN_WHATSAPP: ${BOOTSTRAP_ADMIN_WHATSAPP:-11999999999}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend:/app
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=5)"]
-      interval: 10s
-      timeout: 5s
-      retries: 8
+    # Entrypoint do backend roda `alembic upgrade head` antes do uvicorn (tabelas users/licenses).
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: appgetup-frontend
+    image: node:20-alpine
+    working_dir: /app
     environment:
-      VITE_PROXY_TARGET: http://backend:8000
+      # Variável usada só em documentação; Vite lê DOCKER para proxy
+      VITE_BACKEND_ORIGIN: http://backend:8000
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
     depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:5173').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      - backend
+    command: >
+      sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
 
 volumes:
-  appgetup_db_data:
+  pgdata:
+  frontend_node_modules:

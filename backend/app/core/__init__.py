@@ -1,1 +1,0 @@
-"""Configuracoes centrais da aplicacao."""

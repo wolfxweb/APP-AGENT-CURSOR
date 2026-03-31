@@ -1,13 +1,8 @@
-.git
-.gitignore
-.pytest_cache
 __pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
 *.pyc
-*.pyo
-*.pyd
-.Python
+.env
 .venv
 venv
-.env
-dist
-build

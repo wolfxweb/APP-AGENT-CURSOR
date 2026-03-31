@@ -15,8 +15,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: pytest disponível para o gate
-        run: pip install pytest
+      - name: Dependências Python (backend + testes)
+        run: pip install -r backend/requirements.txt
 
       - uses: actions/setup-node@v4
         with:

@@ -1,47 +1,25 @@
-from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
+from collections.abc import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from app.core.config import settings
+
+# timeout: falha rápida se Postgres estiver inacessível (evita requisição pendente longa).
+_engine_kw: dict = {"pool_pre_ping": True}
+if settings.database_url.startswith("postgresql"):
+    _engine_kw["connect_args"] = {"timeout": 10}
+
+engine = create_async_engine(settings.database_url, **_engine_kw)
+
+AsyncSessionLocal = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autoflush=False,
+    autocommit=False,
 )
 
-from app.core.settings import settings
 
-_engine: AsyncEngine | None = None
-_sessionmaker: async_sessionmaker[AsyncSession] | None = None
-
-
-def get_engine() -> AsyncEngine:
-    global _engine
-    if _engine is None:
-        _engine = create_async_engine(
-            settings.database_url,
-            future=True,
-            pool_pre_ping=True,
-        )
-    return _engine
-
-
-def get_sessionmaker() -> async_sessionmaker[AsyncSession]:
-    global _sessionmaker
-    if _sessionmaker is None:
-        _sessionmaker = async_sessionmaker(
-            get_engine(),
-            expire_on_commit=False,
-            class_=AsyncSession,
-        )
-    return _sessionmaker
-
-
-async def dispose_engine() -> None:
-    global _engine
-    global _sessionmaker
-    if _engine is not None:
-        await _engine.dispose()
-        _engine = None
-        _sessionmaker = None
-
-
-async def get_db() -> AsyncSession:
-    async with get_sessionmaker()() as session:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
         yield session
