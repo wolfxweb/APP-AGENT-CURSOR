@@ -10,9 +10,7 @@ class Settings(BaseSettings):
     )
 
     app_env: str = "development"
-    database_url: str = (
-        "postgresql+asyncpg://postgres:postgres@localhost:5432/appgetup"
-    )
+    database_url: str = Field(..., validation_alias="DATABASE_URL")
     cors_origins: str = Field(
         default="http://localhost:5173,http://127.0.0.1:5173",
         validation_alias="CORS_ORIGINS",

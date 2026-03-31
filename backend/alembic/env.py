@@ -16,10 +16,11 @@ target_metadata = Base.metadata
 
 def get_sync_url() -> str:
     """URL síncrona para Alembic (psycopg v3), alinhada ao asyncpg da aplicação."""
-    url = os.environ.get(
-        "DATABASE_URL",
-        "postgresql+asyncpg://postgres:postgres@localhost:5432/appgetup",
-    )
+    url = os.environ.get("DATABASE_URL")
+    if not url:
+        raise RuntimeError(
+            "DATABASE_URL não definido. Configure a URL do Postgres no ambiente antes de rodar migrações."
+        )
     if url.startswith("postgresql+asyncpg://"):
         return url.replace("postgresql+asyncpg://", "postgresql+psycopg://", 1)
     if url.startswith("postgresql://") and "+psycopg" not in url:
