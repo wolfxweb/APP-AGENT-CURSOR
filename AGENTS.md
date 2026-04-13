@@ -2,6 +2,7 @@
 
 **Nomes:** repositório/pasta **`APP`**; produto entregue ao usuário **`appGetUp`** (ver [`Requisitos.MD`](Requisitos.MD)).
 
+
 - **Produto e escopo técnico:** [`Requisitos.MD`](Requisitos.MD); decomposição em telas e tarefas: **`/product-analyst`**, depois **`/arquiteto`** (ver ordem em [`.cursor/rules/agent-orchestration.mdc`](.cursor/rules/agent-orchestration.mdc)).
 - **Operação AI-first (rules, hooks, MCP, fluxo):** [`CURSOR-AGENT-OS.md`](CURSOR-AGENT-OS.md).
 - **Revisão de PR / Bugbot:** [`BUGBOT.md`](BUGBOT.md).

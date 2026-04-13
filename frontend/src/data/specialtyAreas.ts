@@ -7,6 +7,7 @@ export const ACTIVITY_TYPE_OPTIONS = [
   "Prestação de serviços",
 ] as const;
 
+
 export type ActivityTypeOption = (typeof ACTIVITY_TYPE_OPTIONS)[number];
 
 export const SPECIALTY_BY_ACTIVITY: Record<ActivityTypeOption, readonly string[]> = {
